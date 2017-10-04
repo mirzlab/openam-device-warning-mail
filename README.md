@@ -1,0 +1,1 @@
+# openam-device-warning-mail

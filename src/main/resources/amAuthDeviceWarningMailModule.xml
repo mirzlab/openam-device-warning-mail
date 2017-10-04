@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE ServicesConfiguration
+        PUBLIC "=//iPlanet//Service Management Services (SMS) 1.0 DTD//EN"
+        "jar://com/sun/identity/sm/sms.dtd">
+ 
+<ServicesConfiguration>
+    <Service name="iPlanetAMAuthDeviceWarningMailModuleService" version="1.0">
+        <Schema
+                serviceHierarchy="/DSAMEConfig/authentication/iPlanetAMAuthDeviceWarningMailModuleService"
+                i18nFileName="amAuthDeviceWarningMailModule"
+                revisionNumber="10"
+                i18nKey="iplanet-am-auth-devicewarningmail-service-description"
+                resourceName="iPlanetAuthDeviceWarningMailService">
+            <Organization>
+                <AttributeSchema name="iplanet-am-auth-devicewarningmail-auth-level"
+                                 type="single"
+                                 syntax="number_range" rangeStart="0" rangeEnd="2147483647"
+                                 i18nKey="a500" resourceName="iplanetamauthdevicewarningmailauthlevel">
+                    <DefaultValues>
+                        <Value>1</Value>
+                    </DefaultValues>
+                </AttributeSchema>
+
+                <AttributeSchema name="devicewarningmail-template"
+                                 type="single"
+                                 syntax="script"
+                                 validator="no"
+                                 i18nKey="a501" resourceName="devicewarningmailtemplate">
+                    <DefaultValues>
+                        <Value></Value>
+                    </DefaultValues>
+                </AttributeSchema>
+
+                <AttributeSchema name="devicewarningmail-subject"
+                                 type="single"
+                                 syntax="string"
+                                 validator="no"
+                                 i18nKey="a502" resourceName="devicewarningmailsubject">
+                    <DefaultValues>
+                        <Value></Value>
+                    </DefaultValues>
+                </AttributeSchema>
+
+                <AttributeSchema name="devicewarningmail-from"
+                                 type="single"
+                                 syntax="string"
+                                 validator="no"
+                                 i18nKey="a503" resourceName="devicewarningmailfrom">
+                    <DefaultValues>
+                        <Value>noreply@company.com</Value>
+                    </DefaultValues>
+                </AttributeSchema>
+
+                <AttributeSchema name="devicewarningmail-mail-attribute"
+                                 type="single"
+                                 syntax="string"
+                                 validator="no"
+                                 i18nKey="a504" resourceName="devicewarningmailmailattribute">
+                    <DefaultValues>
+                        <Value>mail</Value>
+                    </DefaultValues>
+                </AttributeSchema>
+                <SubSchema name="serverconfig" inheritance="multiple" resourceName="USE-PARENT">
+                    <AttributeSchema name="iplanet-am-auth-devicewarningmail-auth-level"
+                                     type="single"
+                                     syntax="number_range" rangeStart="0" rangeEnd="2147483647"
+                                     i18nKey="a500" resourceName="iplanetamauthdevicewarningmailauthlevel">
+                        <DefaultValues>
+                            <Value>1</Value>
+                        </DefaultValues>
+                    </AttributeSchema>
+
+                    <AttributeSchema name="devicewarningmail-template"
+                                     type="single"
+                                     syntax="script"
+                                     validator="ScriptValidator"
+                                     i18nKey="a501" resourceName="devicewarningmailtemplate">
+                        <DefaultValues>
+                            <Value></Value>
+                        </DefaultValues>
+                    </AttributeSchema>
+
+                    <AttributeSchema name="devicewarningmail-subject"
+                                     type="single"
+                                     syntax="string"
+                                     validator="no"
+                                     i18nKey="a502" resourceName="devicewarningmailsubject">
+                        <DefaultValues>
+                            <Value></Value>
+                        </DefaultValues>
+                    </AttributeSchema>
+
+                    <AttributeSchema name="devicewarningmail-from"
+                                     type="single"
+                                     syntax="string"
+                                     validator="no"
+                                     i18nKey="a503" resourceName="devicewarningmailfrom">
+                        <DefaultValues>
+                            <Value>noreply@company.com</Value>
+                        </DefaultValues>
+                    </AttributeSchema>
+
+                    <AttributeSchema name="devicewarningmail-mail-attribute"
+                                     type="single"
+                                     syntax="string"
+                                     validator="no"
+                                     i18nKey="a504" resourceName="devicewarningmailmailattribute">
+                        <DefaultValues>
+                            <Value>mail</Value>
+                        </DefaultValues>
+                    </AttributeSchema>
+ 
+                </SubSchema>
+            </Organization>
+        </Schema>
+    </Service>
+</ServicesConfiguration>
