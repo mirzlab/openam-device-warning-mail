@@ -10,7 +10,7 @@
                 i18nFileName="amAuthDeviceWarningMailModule"
                 revisionNumber="10"
                 i18nKey="iplanet-am-auth-devicewarningmail-service-description"
-                resourceName="iPlanetAuthDeviceWarningMailService">
+                resourceName="devicewarningmailservice">
             <Organization>
                 <AttributeSchema name="iplanet-am-auth-devicewarningmail-auth-level"
                                  type="single"
@@ -23,7 +23,7 @@
 
                 <AttributeSchema name="devicewarningmail-template"
                                  type="single"
-                                 syntax="script"
+                                 syntax="string"
                                  validator="no"
                                  i18nKey="a501" resourceName="devicewarningmailtemplate">
                     <DefaultValues>
@@ -72,7 +72,7 @@
 
                     <AttributeSchema name="devicewarningmail-template"
                                      type="single"
-                                     syntax="script"
+                                     syntax="string"
                                      validator="ScriptValidator"
                                      i18nKey="a501" resourceName="devicewarningmailtemplate">
                         <DefaultValues>

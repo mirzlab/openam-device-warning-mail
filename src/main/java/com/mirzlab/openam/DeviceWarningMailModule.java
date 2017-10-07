@@ -87,7 +87,7 @@ public class DeviceWarningMailModule extends AMLoginModule {
         mailFrom = CollectionHelper.getMapAttr(
                 options, "devicewarningmail-from", "");
         mailAttribute = CollectionHelper.getMapAttr(
-                options, "devicewarningmail-mailAttribute", "");
+                options, "devicewarningmail-mail-attribute", "");
         userAgentInfo = new UserAgentInfo(getHttpServletRequest());
     }
 
@@ -111,13 +111,18 @@ public class DeviceWarningMailModule extends AMLoginModule {
                     while (matcher.find()) {
                         attribute = matcher.group(1);
                         attrValues = identity.getAttribute(attribute);
-                        mailBody = mailBody.replace(matcher.group(), StringUtils.join(attrValues, "<br />"));
+                        if (!attrValues.isEmpty()) {
+                            mailBody = mailBody.replace(matcher.group(), StringUtils.join(attrValues, "<br />"));
+                        }
                     }
                     Set<String> mails = identity.getAttribute(mailAttribute);
-
+                    if (mails == null || mails.isEmpty()) {
+                        debug.error("Could not retrieve user mail from attribute : " + mailAttribute);
+                        throw new AuthLoginException("Could not send warning mail to user");
+                    }
                     String subject = mailSubject.replace("%{browser}", userAgentInfo.getBrowser());
                     subject = subject.replace("%{device}", userAgentInfo.getDevice());
-                    amMail.postMail((String[]) mails.toArray(), subject, mailBody, mailFrom, "text/html", "UTF-8");
+                    amMail.postMail(mails.toArray(new String[0]), subject, mailBody, mailFrom, "text/html", "UTF-8");
                     return ISAuthConstants.LOGIN_SUCCEED;
                 } catch (IdRepoException | SSOException | MessagingException e) {
                     debug.error(e.getMessage());
