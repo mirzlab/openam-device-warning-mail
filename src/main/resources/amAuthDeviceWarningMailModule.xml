@@ -27,7 +27,7 @@
                                  validator="no"
                                  i18nKey="a501" resourceName="devicewarningmailtemplate">
                     <DefaultValues>
-                        <Value></Value>
+                        <Value>/home/openam/mailTemplate.txt</Value>
                     </DefaultValues>
                 </AttributeSchema>
 
@@ -76,7 +76,7 @@
                                      validator="ScriptValidator"
                                      i18nKey="a501" resourceName="devicewarningmailtemplate">
                         <DefaultValues>
-                            <Value></Value>
+                            <Value>/home/openam/mailTemplate.txt</Value>
                         </DefaultValues>
                     </AttributeSchema>
 

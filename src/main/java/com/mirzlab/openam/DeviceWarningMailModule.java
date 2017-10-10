@@ -23,12 +23,13 @@
 
 package com.mirzlab.openam;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.Principal;
 import javax.mail.MessagingException;
-import java.util.Collections;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.security.auth.Subject;
@@ -56,6 +57,7 @@ public class DeviceWarningMailModule extends AMLoginModule {
     private String mailSubject = null;
     private String mailAttribute = null;
     private String mailFrom = null;
+    private String mailTemplateFilePath = null;
     private String mailTemplate = null;
 
     private final static int STATE_BEGIN = 1;
@@ -63,6 +65,7 @@ public class DeviceWarningMailModule extends AMLoginModule {
     private ResourceBundle bundle;
     private Map<String, String> sharedState;
     private AMSendMail amMail;
+    private AMIdentity identity = null;
 
     // Thank you https://gist.github.com/bryanjswift/318237
     private UserAgentInfo userAgentInfo;
@@ -80,8 +83,13 @@ public class DeviceWarningMailModule extends AMLoginModule {
 
         // Retrieve user id from previous module
         userName = (String) sharedState.get(getUserKey());
-        mailTemplate = CollectionHelper.getMapAttr(
+        mailTemplateFilePath = CollectionHelper.getMapAttr(
                 options, "devicewarningmail-template", "");
+        try {
+            mailTemplate = new String(Files.readAllBytes(Paths.get(mailTemplateFilePath)));
+        } catch (IOException e) {
+            debug.error(e.getMessage());
+        }
         mailSubject = CollectionHelper.getMapAttr(
                 options, "devicewarningmail-subject", "");
         mailFrom = CollectionHelper.getMapAttr(
@@ -95,34 +103,30 @@ public class DeviceWarningMailModule extends AMLoginModule {
     public int process(Callback[] callbacks, int state) throws LoginException {
         switch (state) {
             case STATE_BEGIN:
-                AMIdentity identity = getIdentity();
+                if (mailTemplate == null) {
+                    debug.error("Could not read mail template file");
+                    throw new AuthLoginException("Could not send warning mail to user");
+                }
+
+                // Retrieve identity object of the user
+                identity = getIdentity();
                 if (identity == null) {
                     debug.error("Could not retrieve identity");
                     throw new AuthLoginException("Could not send warning mail to user");
                 }
 
-                String mailBody = mailTemplate;
-                String regex = "%\\{([^}]*)\\}";
-                Pattern pattern = Pattern.compile(regex);
-                Matcher matcher = pattern.matcher(mailBody);
-                String attribute = null;
-                Set<String> attrValues = null;
+                String body = replaceVariables(mailTemplate);
+                String subject = replaceVariables(mailSubject);
                 try {
-                    while (matcher.find()) {
-                        attribute = matcher.group(1);
-                        attrValues = identity.getAttribute(attribute);
-                        if (!attrValues.isEmpty()) {
-                            mailBody = mailBody.replace(matcher.group(), StringUtils.join(attrValues, "<br />"));
-                        }
-                    }
+                    // Retrieve user mail attribute
                     Set<String> mails = identity.getAttribute(mailAttribute);
                     if (mails == null || mails.isEmpty()) {
                         debug.error("Could not retrieve user mail from attribute : " + mailAttribute);
                         throw new AuthLoginException("Could not send warning mail to user");
                     }
-                    String subject = mailSubject.replace("%{browser}", userAgentInfo.getBrowser());
-                    subject = subject.replace("%{device}", userAgentInfo.getDevice());
-                    amMail.postMail(mails.toArray(new String[0]), subject, mailBody, mailFrom, "text/html", "UTF-8");
+
+                    // Send the mail
+                    amMail.postMail(mails.toArray(new String[0]), subject, body, mailFrom, "text/html", "UTF-8");
                     return ISAuthConstants.LOGIN_SUCCEED;
                 } catch (IdRepoException | SSOException | MessagingException e) {
                     debug.error(e.getMessage());
@@ -133,7 +137,37 @@ public class DeviceWarningMailModule extends AMLoginModule {
         }
     }
 
-   private AMIdentity getIdentity() {
+    private String replaceVariables(String content) {
+        String regex = "%\\{([^}]*)\\}";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(content);
+        String attribute = null;
+        Set<String> attrValues = null;
+        while (matcher.find()) {
+            attribute = matcher.group(1);
+            attribute = attribute.trim();
+            if (attribute.equals("browser")) {
+                content = content.replace(matcher.group(), userAgentInfo.getBrowser());
+            } else if (attribute.equals("device")) {
+                content = content.replace(matcher.group(), userAgentInfo.getDevice());
+            } else if (attribute.equals("date")) {
+                String date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
+                content = content.replace(matcher.group(), date);
+            } else {
+                try {
+                    attrValues = identity.getAttribute(attribute);
+                    if (!attrValues.isEmpty()) {
+                        content = content.replace(matcher.group(), StringUtils.join(attrValues, "<br />"));
+                    }
+                } catch (IdRepoException | SSOException e) {
+                    debug.error(e.getMessage());
+                }
+            }
+        }
+        return content;
+    }
+
+    private AMIdentity getIdentity() {
         AMIdentity amIdentity = null;
         AMIdentityRepository amIdRepo = getAMIdentityRepository(getRequestOrg());
 
