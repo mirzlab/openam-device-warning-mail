@@ -25,6 +25,10 @@ Restart your container.
 
 ## Configuration
 
+Specify the path to the mail template file inside the module configuration (using OpenAM admin console or using ssoadm).
+
+A default mail template file is provided inside the project: mailTemplate.txt
+
 **You can use the following variables inside the mail subject and template file:**
 
 - browser: returns the browser used to authenticate (based on User-Agent header)
@@ -52,4 +56,4 @@ After entering the username and password, if the device is unknown, the user is 
 
 Default mail template result :
 
-![reCAPTCHA](img/mail.png)
+![mail](img/mail.png)
