@@ -46,6 +46,8 @@ Place the module after the *DeviceId Save* module. Your authentication chain can
 
 ## Let's test
 
+**Note: You must configure the OpenAM email service before testing the module (Check OpenAM documentation for more info).**
+
 Test that the module is working by using the created authentication chain:
 
 ```
